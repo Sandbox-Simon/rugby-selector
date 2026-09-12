@@ -1,0 +1,24 @@
+[
+    {
+        "name": "Joe Bloggs",
+        "position_group": "forward",
+        "ratings": {
+            "attack": 0,
+            "defence": 1,
+            "handling": 2,
+            "breakdown": 0,
+            "vision": 1
+        }
+    },
+    {
+        "name": "John Doe",
+        "position_group": "back",
+        "ratings": {
+            "attack": 2,
+            "defence": 2,
+            "handling": 2,
+            "breakdown": 1,
+            "vision": 1
+        }
+    }
+]

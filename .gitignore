@@ -1,0 +1,7 @@
+data/players.json
+.venv/
+.vscode/
+
+__pycache__/
+*.py[cod]
+.pytest_cache/
