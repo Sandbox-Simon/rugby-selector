@@ -117,4 +117,4 @@ if not is_editing or selected_player is not None:
         else:
             st.success(f"{player.name} was {'updated' if is_editing else 'added'}.")
 
-st.page_link("pages/2_Players.py", label="Back to players")
+st.page_link("pages/2_Player_List.py", label="Back to players")

@@ -21,18 +21,16 @@ except (OSError, ValidationError, ValueError):
     st.error("The fixture list could not be loaded. Please check the saved fixture data.")
     fixtures = []
 
-fixture_ids = [fixture.id for fixture in fixtures]
+fixtures.sort(key=lambda fixture: fixture.date, reverse=True)
 fixture_by_id = {fixture.id: fixture for fixture in fixtures}
-selected_fixture_id = st.selectbox(
-    "Fixture",
-    options=[None, *fixture_ids],
-    format_func=lambda fixture_id: (
-        "Add new fixture"
-        if fixture_id is None
-        else f"{fixture_by_id[fixture_id].date:%d %b %Y} — "
-        f"{fixture_by_id[fixture_id].opponent} ({fixture_by_id[fixture_id].venue})"
-    ),
-    key="fixture_to_edit",
+requested_fixture_id = st.query_params.get("fixture_id")
+if requested_fixture_id is not None:
+    try:
+        requested_fixture_id = int(requested_fixture_id)
+    except ValueError:
+        requested_fixture_id = None
+selected_fixture_id = (
+    requested_fixture_id if requested_fixture_id in fixture_by_id else None
 )
 
 selected_fixture = fixture_by_id.get(selected_fixture_id)

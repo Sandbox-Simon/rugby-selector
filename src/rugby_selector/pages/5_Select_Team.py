@@ -1,3 +1,5 @@
+from html import escape
+from numbers import Number
 from pathlib import Path
 
 import pandas as pd
@@ -25,6 +27,12 @@ AVAILABILITY_FILE = DATA_DIR / "fixture_availability.json"
 SELECTIONS_FILE = DATA_DIR / "match_selections.json"
 QUARTERS = ("Q1", "Q2", "Q3", "Q4")
 SKILLS = ("attack", "defence", "handling", "breakdown", "vision")
+ASSIGNMENT_COLOURS = {
+    "same_position": "#92d050",
+    "first_appearance": "#ff0000",
+    "returning_from_bench": "#ffc000",
+    "different_position": "#d9a0d9",
+}
 
 
 def summary_cell_colour(value: int, category: str) -> str:
@@ -37,11 +45,236 @@ def summary_cell_colour(value: int, category: str) -> str:
     return f"background-color: {colour}; color: #1f2937;"
 
 
+def assignment_colour(
+    quarter_index: int,
+    position: int,
+    player_id: int | None,
+    planned_positions: dict[str, list[int | None]],
+) -> str | None:
+    if quarter_index == 0 or position >= PLAYING_POSITION_COUNT or player_id is None:
+        return None
+
+    quarter = QUARTERS[quarter_index]
+    previous_quarter = QUARTERS[quarter_index - 1]
+    previous_positions = planned_positions[previous_quarter]
+    if position < len(previous_positions) and previous_positions[position] == player_id:
+        return ASSIGNMENT_COLOURS["same_position"]
+    if player_id in previous_positions[:PLAYING_POSITION_COUNT]:
+        return ASSIGNMENT_COLOURS["different_position"]
+
+    prior_appearances = any(
+        player_id in planned_positions[prior_quarter][:PLAYING_POSITION_COUNT]
+        for prior_quarter in QUARTERS[:quarter_index]
+    )
+    return ASSIGNMENT_COLOURS[
+        "returning_from_bench" if prior_appearances else "first_appearance"
+    ]
+
+
+def render_substitution_summary(
+    planned_positions: dict[str, list[int | None]],
+    player_names: dict[int, str],
+) -> None:
+    substitution_bullets = []
+    for quarter_index in range(1, len(QUARTERS)):
+        quarter = QUARTERS[quarter_index]
+        previous_quarter = QUARTERS[quarter_index - 1]
+        previous_positions = planned_positions[previous_quarter][:PLAYING_POSITION_COUNT]
+        current_positions = planned_positions[quarter][:PLAYING_POSITION_COUNT]
+        previous_playing_positions = {
+            player_id: position + 1
+            for position, player_id in enumerate(previous_positions)
+            if player_id is not None
+        }
+        current_bench_players = {
+            player_id
+            for player_id in planned_positions[quarter][PLAYING_POSITION_COUNT:]
+            if player_id is not None
+        }
+
+        for position, current_player_id in enumerate(current_positions):
+            previous_player_id = previous_positions[position]
+            if current_player_id is None or current_player_id == previous_player_id:
+                continue
+            current_player_name = player_names[current_player_id]
+            if current_player_id in previous_playing_positions:
+                substitution_bullets.append(
+                    f"- **{quarter}:** {current_player_name} moves to "
+                    f"{position_name(position + 1)}"
+                )
+            elif previous_player_id is not None:
+                substitution_bullets.append(
+                    f"- **{quarter}:** {current_player_name} replaces "
+                    f"{player_names[previous_player_id]} at {position_name(position + 1)}"
+                )
+
+        for player_id, previous_position in previous_playing_positions.items():
+            if player_id in current_bench_players:
+                substitution_bullets.append(
+                    f"- **{quarter}:** {player_names[player_id]} moves from "
+                    f"{position_name(previous_position)} to the bench"
+                )
+
+    if substitution_bullets:
+        st.markdown("\n".join(substitution_bullets))
+
+
+def render_skill_totals(
+    planned_positions: dict[str, list[int | None]],
+    players_by_id: dict[int, object],
+) -> None:
+    skill_total_rows = [
+        {
+            "Skill": skill.title(),
+            **{
+                quarter: sum(
+                    getattr(players_by_id[player_id].skills, skill)
+                    for player_id in planned_positions[quarter][:PLAYING_POSITION_COUNT]
+                    if player_id is not None
+                )
+                for quarter in QUARTERS
+            },
+        }
+        for skill in SKILLS
+    ]
+    skill_total_rows.append(
+        {
+            "Skill": "TOTAL",
+            **{
+                quarter: sum(row[quarter] for row in skill_total_rows)
+                for quarter in QUARTERS
+            },
+        }
+    )
+    skill_rows = [
+        [row["Skill"], *(row[quarter] for quarter in QUARTERS)]
+        for row in skill_total_rows
+    ]
+    skill_styles = [
+        ["font-weight: bold; font-size: 1.1em;"] * len(row)
+        if row[0] == "TOTAL"
+        else [""] * len(row)
+        for row in skill_rows
+    ]
+    render_print_table(
+        ["Skill", *QUARTERS],
+        skill_rows,
+        skill_styles,
+    )
+
+
+def render_print_table(
+    headers: list[str],
+    rows: list[list[object]],
+    cell_styles: list[list[str]] | None = None,
+) -> None:
+    table_header = "".join(f"<th>{escape(header)}</th>" for header in headers)
+    table_rows = []
+    for row_index, row in enumerate(rows):
+        styles = cell_styles[row_index] if cell_styles else [""] * len(row)
+        cells = [
+            f"<td style='{style}{'text-align:center;' if isinstance(value, Number) else ''}'>"
+            f"{escape(str(value))}</td>"
+            for value, style in zip(row, styles)
+        ]
+        table_rows.append("<tr>" + "".join(cells) + "</tr>")
+
+    st.markdown(
+        "<table class='team-print-table'>"
+        f"<thead><tr>{table_header}</tr></thead>"
+        f"<tbody>{''.join(table_rows)}</tbody>"
+        "</table>",
+        unsafe_allow_html=True,
+    )
+
+
+def render_print_view(
+    available_ids: list[int],
+    planned_positions: dict[str, list[int | None]],
+    player_names: dict[int, str],
+    players_by_id: dict[int, object],
+    position_count: int,
+) -> None:
+    summary_column, selection_column, substitution_column = st.columns(
+        [1.25, 2, 1.25], gap="medium"
+    )
+
+    with selection_column:
+        selection_rows = []
+        selection_styles = []
+        for position in range(position_count):
+            row = [position_label(position + 1)]
+            styles = ["background:#f0f2f6;font-weight:700;"]
+            for quarter_index, quarter in enumerate(QUARTERS):
+                player_id = planned_positions[quarter][position]
+                colour = assignment_colour(
+                    quarter_index,
+                    position,
+                    player_id,
+                    planned_positions,
+                )
+                player_name = "—" if player_id is None else player_names[player_id]
+                row.append(player_name)
+                styles.append(f"background:{colour or '#ffffff'};")
+            selection_rows.append(row)
+            selection_styles.append(styles)
+
+        render_print_table(
+            ["Position", *QUARTERS],
+            selection_rows,
+            selection_styles,
+        )
+        st.markdown(
+            "<div class='team-print-legend'>"
+            f"<span><i style='background:{ASSIGNMENT_COLOURS['same_position']}'></i>Same position</span>"
+            f"<span><i style='background:{ASSIGNMENT_COLOURS['different_position']}'></i>Different position</span>"
+            f"<span><i style='background:{ASSIGNMENT_COLOURS['first_appearance']}'></i>First appearance</span>"
+            f"<span><i style='background:{ASSIGNMENT_COLOURS['returning_from_bench']}'></i>Returning from bench</span>"
+            "</div>",
+            unsafe_allow_html=True,
+        )
+        render_skill_totals(planned_positions, players_by_id)
+
+    with summary_column:
+        summary_rows = []
+        summary_styles = []
+        for player_id in available_ids:
+            played = sum(
+                player_id in planned_positions[quarter][:PLAYING_POSITION_COUNT]
+                for quarter in QUARTERS
+            )
+            subbed = sum(
+                player_id in planned_positions[quarter][PLAYING_POSITION_COUNT:]
+                for quarter in QUARTERS
+            )
+            total = sum(
+                player_id in planned_positions[quarter] for quarter in QUARTERS
+            )
+            summary_rows.append([player_names[player_id], played, subbed, total])
+            summary_styles.append(
+                [
+                    "",
+                    summary_cell_colour(played, "played"),
+                    summary_cell_colour(subbed, "subbed"),
+                    summary_cell_colour(total, "total"),
+                ]
+            )
+        render_print_table(
+            ["Player", "Played", "Subbed", "Total"],
+            summary_rows,
+            summary_styles,
+        )
+
+    with substitution_column:
+        render_substitution_summary(planned_positions, player_names)
+
+
 st.set_page_config(
     page_title="Select team | Rugby Selector",
     page_icon="🏉",
     layout="wide",
 )
+is_print_view = st.query_params.get("print") == "1"
 st.markdown(
     """
     <style>
@@ -78,17 +311,133 @@ st.markdown(
         min-width: 5rem;
         white-space: nowrap;
     }
+    .print-team-button {
+        border: 1px solid #9ca3af;
+        border-radius: 0.4rem;
+        background: var(--secondary-background-color, #f0f2f6);
+        color: var(--text-color, #1f2937);
+        cursor: pointer;
+        font: inherit;
+        padding: 0.35rem 0.75rem;
+    }
+    .print-team-button:hover {
+        border-color: #4b5563;
+    }
+    .team-print-table {
+        border-collapse: collapse;
+        margin: 0.5rem 0 1rem;
+        table-layout: fixed;
+        width: 100%;
+    }
+    .team-print-table th,
+    .team-print-table td {
+        border: 1px solid #9ca3af;
+        padding: 0.45rem 0.6rem;
+        text-align: left;
+    }
+    .team-print-table th {
+        background: #e5e7eb;
+    }
+    .team-print-table th:first-child,
+    .team-print-table td:first-child {
+        width: 18%;
+    }
+    .team-print-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+    .team-print-legend i {
+        border: 1px solid #9ca3af;
+        display: inline-block;
+        height: 0.8rem;
+        margin-right: 0.3rem;
+        vertical-align: -0.1rem;
+        width: 0.8rem;
+    }
+    @media print {
+        [data-testid="stSidebar"],
+        [data-testid="stHeader"],
+        [data-testid="stToolbar"],
+        [data-testid="stDecoration"],
+        .stDeployButton,
+        .stAppDeployButton,
+        button,
+        .st-key-save-match-button,
+        iframe,
+        .print-team-button,
+        .print-team-button-frame {
+            display: none !important;
+        }
+        .st-key-match-header {
+            position: static !important;
+            left: auto !important;
+            width: auto !important;
+            padding: 0 !important;
+            border-bottom: 0 !important;
+        }
+        .match-header-spacer {
+            display: none !important;
+        }
+        [data-testid="stAppViewContainer"] .block-container {
+            max-width: none !important;
+            padding: 0 !important;
+        }
+    }
     </style>
     """,
     unsafe_allow_html=True,
 )
-with st.container(key="match-header"):
-    title_column, fixture_column = st.columns([1.5, 1.2])
-    with title_column:
-        st.title("Select team")
-        st.caption("Choose the available players and assign them for each quarter.")
-st.markdown("<div class='match-header-spacer'></div>", unsafe_allow_html=True)
-
+if is_print_view:
+    st.markdown(
+        """
+        <style>
+        .st-key-match-header {
+            display: none !important;
+            position: static !important;
+            left: auto !important;
+            width: auto !important;
+            padding: 0 !important;
+            border-bottom: 0 !important;
+        }
+        [data-testid="stHorizontalBlock"] {
+            align-items: flex-start !important;
+        }
+        h1,
+        h2,
+        h3,
+        h4 {
+            display: none !important;
+        }
+        [data-testid="stCaption"],
+        [data-testid="stCaptionContainer"],
+        .stCaption {
+            display: none !important;
+        }
+        [data-testid="stAppViewContainer"] .block-container {
+            max-width: none !important;
+            padding: 0.5rem 1rem !important;
+        }
+        .team-print-table {
+            font-size: 0.85rem;
+        }
+        .team-print-table th,
+        .team-print-table td {
+            padding: 0.25rem 0.4rem;
+        }
+        [data-testid="stTable"] table {
+            font-size: 0.78rem !important;
+            width: 100% !important;
+        }
+        [data-testid="stTable"] th,
+        [data-testid="stTable"] td {
+            padding: 0.2rem 0.3rem !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 try:
     fixtures = load_fixtures(FIXTURES_FILE)
     players = load_players(PLAYERS_FILE)
@@ -100,27 +449,78 @@ except (OSError, ValidationError, ValueError):
     fixtures = []
     players = []
 
+fixtures.sort(key=lambda fixture: fixture.date, reverse=True)
+fixture_ids = [fixture.id for fixture in fixtures]
+selected_fixture_id = None
+selected_fixture = None
+if fixture_ids:
+    requested_fixture_id = st.query_params.get("fixture_id")
+    if requested_fixture_id is not None:
+        try:
+            requested_fixture_id = int(requested_fixture_id)
+        except ValueError:
+            requested_fixture_id = None
+        if requested_fixture_id in fixture_ids:
+            st.session_state["team_fixture_selection"] = requested_fixture_id
+        st.query_params.pop("fixture_id", None)
+
+    selected_fixture_id = st.session_state.get("team_fixture_selection")
+    if selected_fixture_id not in fixture_ids:
+        selected_fixture_id = fixture_ids[0]
+        st.session_state["team_fixture_selection"] = selected_fixture_id
+    selected_fixture = next(
+        fixture for fixture in fixtures if fixture.id == selected_fixture_id
+    )
+
+fixture_title = (
+    f"{selected_fixture.date:%d %b %Y} — "
+    f"{selected_fixture.opponent} ({selected_fixture.venue})"
+    if selected_fixture
+    else "Select team"
+)
+with st.container(key="match-header"):
+    st.title(fixture_title)
+    if not is_print_view:
+        st.components.v1.html(
+            f"""
+            <button class="print-team-button" type="button">
+                ↗️ Open in new tab
+            </button>
+            <script>
+            document.querySelector('.print-team-button').addEventListener('click', () => {{
+                const url = new URL(window.parent.location.href);
+                url.searchParams.set('fixture_id', '{selected_fixture_id}');
+                url.searchParams.set('print', '1');
+                window.open(url.href, '_blank', 'noopener,noreferrer');
+            }});
+            </script>
+            <style>
+            .print-team-button {{
+                border: 1px solid #9ca3af;
+                border-radius: 0.4rem;
+                background: #f0f2f6;
+                color: #1f2937;
+                cursor: pointer;
+                font: 14px sans-serif;
+                padding: 0.35rem 0.75rem;
+            }}
+            </style>
+            """,
+            height=42,
+            scrolling=False,
+        )
+if not is_print_view:
+    st.markdown("<div class='match-header-spacer'></div>", unsafe_allow_html=True)
+
 if not fixtures:
     st.info("Add a fixture before selecting a team.")
-    st.page_link("pages/4_Add_Fixture.py", label="Add a fixture")
 elif not players:
     st.info("Add players before selecting a team.")
-    st.page_link("pages/1_Player.py", label="Add a player")
+    st.page_link("pages/1_Add_Player.py", label="Add a player")
 else:
     players.sort(key=lambda player: player.name.casefold())
     player_names = {player.id: player.name for player in players}
     players_by_id = {player.id: player for player in players}
-    fixture_ids = [fixture.id for fixture in fixtures]
-    fixture_labels = {
-        fixture.id: f"{fixture.date:%d %b %Y} — {fixture.opponent} ({fixture.venue})"
-        for fixture in fixtures
-    }
-    with fixture_column:
-        selected_fixture_id = st.selectbox(
-            "Fixture",
-            options=fixture_ids,
-            format_func=lambda fixture_id: fixture_labels[fixture_id],
-        )
 
     availability = load_fixture_availability(AVAILABILITY_FILE)
     available_ids = list(
@@ -133,12 +533,9 @@ else:
     available_ids.sort(key=lambda player_id: player_names[player_id].casefold())
 
     if not available_ids:
-        with fixture_column:
-            st.info("No players have been marked available for this fixture.")
-        st.page_link("pages/5_Fixture_Availability.py", label="Set fixture availability")
+        st.info("No players have been marked available for this fixture.")
+        st.page_link("pages/4_Manage_Availability.py", label="Set fixture availability")
     else:
-        with fixture_column:
-            st.success(f"{len(available_ids)} player(s) available for this fixture.")
         with st.container(key="save-match-button"):
             save_requested = st.button(
                 "Save",
@@ -191,6 +588,16 @@ else:
                 for position in range(position_count)
             ]
 
+        if is_print_view:
+            render_print_view(
+                available_ids,
+                planned_positions,
+                player_names,
+                players_by_id,
+                position_count,
+            )
+            st.stop()
+
         assignment_colours = {
             "same_position": "#92d050",
             "first_appearance": "#ff0000",
@@ -214,7 +621,7 @@ else:
                     colour = assignment_colours["different_position"]
                 else:
                     prior_appearances = any(
-                        player_id in planned_positions[prior_quarter][:position_count]
+                        player_id in planned_positions[prior_quarter][:PLAYING_POSITION_COUNT]
                         for prior_quarter in QUARTERS[:quarter_index]
                     )
                     colour = assignment_colours[
@@ -425,53 +832,6 @@ else:
                 .map(lambda value: summary_cell_colour(value, "total"), subset=["Total"])
             )
 
-            st.subheader("Substitution summary")
-            substitution_bullets = []
-            for quarter_index in range(1, len(QUARTERS)):
-                quarter = QUARTERS[quarter_index]
-                previous_quarter = QUARTERS[quarter_index - 1]
-                previous_positions = quarter_positions[previous_quarter][:PLAYING_POSITION_COUNT]
-                current_positions = quarter_positions[quarter][:PLAYING_POSITION_COUNT]
-                previous_playing_positions = {
-                    player_id: position + 1
-                    for position, player_id in enumerate(previous_positions)
-                    if player_id is not None
-                }
-                current_bench_players = {
-                    player_id
-                    for player_id in quarter_positions[quarter][PLAYING_POSITION_COUNT:]
-                    if player_id is not None
-                }
-
-                for position, current_player_id in enumerate(current_positions):
-                    previous_player_id = previous_positions[position]
-                    if current_player_id is None or current_player_id == previous_player_id:
-                        continue
-
-                    current_player_name = player_names[current_player_id]
-                    if current_player_id in previous_playing_positions:
-                        substitution_bullets.append(
-                            f"- **{quarter}:** {current_player_name} moves to "
-                            f"{position_name(position + 1)}"
-                        )
-                    elif previous_player_id is not None:
-                        substitution_bullets.append(
-                            f"- **{quarter}:** {current_player_name} replaces "
-                            f"{player_names[previous_player_id]} at {position_name(position + 1)}"
-                        )
-
-                for player_id, previous_position in previous_playing_positions.items():
-                    if player_id in current_bench_players:
-                        substitution_bullets.append(
-                            f"- **{quarter}:** {player_names[player_id]} moves from "
-                            f"{position_name(previous_position)} to the bench"
-                        )
-
-            if substitution_bullets:
-                st.markdown("\n".join(substitution_bullets))
-            else:
-                st.caption("No substitutions or positional changes yet.")
-
             st.subheader("Quarter skill totals")
             st.caption(
                 "Totals for named playing positions only. "
@@ -511,3 +871,50 @@ else:
                     axis=1,
                 )
             )
+
+        st.subheader("Substitution summary")
+        substitution_bullets = []
+        for quarter_index in range(1, len(QUARTERS)):
+            quarter = QUARTERS[quarter_index]
+            previous_quarter = QUARTERS[quarter_index - 1]
+            previous_positions = quarter_positions[previous_quarter][:PLAYING_POSITION_COUNT]
+            current_positions = quarter_positions[quarter][:PLAYING_POSITION_COUNT]
+            previous_playing_positions = {
+                player_id: position + 1
+                for position, player_id in enumerate(previous_positions)
+                if player_id is not None
+            }
+            current_bench_players = {
+                player_id
+                for player_id in quarter_positions[quarter][PLAYING_POSITION_COUNT:]
+                if player_id is not None
+            }
+
+            for position, current_player_id in enumerate(current_positions):
+                previous_player_id = previous_positions[position]
+                if current_player_id is None or current_player_id == previous_player_id:
+                    continue
+
+                current_player_name = player_names[current_player_id]
+                if current_player_id in previous_playing_positions:
+                    substitution_bullets.append(
+                        f"- **{quarter}:** {current_player_name} moves to "
+                        f"{position_name(position + 1)}"
+                    )
+                elif previous_player_id is not None:
+                    substitution_bullets.append(
+                        f"- **{quarter}:** {current_player_name} replaces "
+                        f"{player_names[previous_player_id]} at {position_name(position + 1)}"
+                    )
+
+            for player_id, previous_position in previous_playing_positions.items():
+                if player_id in current_bench_players:
+                    substitution_bullets.append(
+                        f"- **{quarter}:** {player_names[player_id]} moves from "
+                        f"{position_name(previous_position)} to the bench"
+                    )
+
+        if substitution_bullets:
+            st.markdown("\n".join(substitution_bullets))
+        else:
+            st.caption("No substitutions or positional changes yet.")

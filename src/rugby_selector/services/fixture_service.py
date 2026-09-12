@@ -1,7 +1,7 @@
 from pathlib import Path
 import json
 
-from rugby_selector.models.fixture import Fixture
+from rugby_selector.models.fixture import Fixture, ScoreEvent
 
 
 def load_fixtures(data_file: Path) -> list[Fixture]:
@@ -93,3 +93,37 @@ def save_match_selection(
 
     with data_file.open("w", encoding="utf-8") as file:
         json.dump(selections, file, indent=4)
+
+
+def load_fixture_scores(data_file: Path) -> dict[str, list[ScoreEvent]]:
+    """Load score events keyed by fixture ID."""
+    if not data_file.exists():
+        return {}
+
+    with data_file.open("r", encoding="utf-8") as file:
+        data = json.load(file)
+
+    return {
+        str(fixture_id): [ScoreEvent.model_validate(event) for event in events]
+        for fixture_id, events in data.items()
+    }
+
+
+def save_fixture_score(
+    fixture_id: int, score_event: ScoreEvent, data_file: Path
+) -> None:
+    """Append a score event to the events recorded for a fixture."""
+    scores = load_fixture_scores(data_file)
+    scores.setdefault(str(fixture_id), []).append(score_event)
+
+    with data_file.open("w", encoding="utf-8") as file:
+        json.dump(
+            {
+                saved_fixture_id: [
+                    event.model_dump(mode="json") for event in events
+                ]
+                for saved_fixture_id, events in scores.items()
+            },
+            file,
+            indent=4,
+        )

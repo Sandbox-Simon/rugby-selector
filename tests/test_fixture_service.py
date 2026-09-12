@@ -1,6 +1,6 @@
 from datetime import date
 
-from rugby_selector.models.fixture import Fixture
+from rugby_selector.models.fixture import Fixture, ScoreEvent, ScoreSide, ScoreType
 from rugby_selector.services.fixture_service import (
     add_fixture,
     load_fixture_availability,
@@ -8,6 +8,8 @@ from rugby_selector.services.fixture_service import (
     load_match_selections,
     save_match_selection,
     save_fixture_availability,
+    load_fixture_scores,
+    save_fixture_score,
     update_fixture,
 )
 
@@ -72,3 +74,26 @@ def test_save_and_load_match_selection(tmp_path):
     save_match_selection(1, quarter_positions, data_file)
 
     assert load_match_selections(data_file) == {"1": quarter_positions}
+
+
+def test_save_and_load_fixture_scores(tmp_path):
+    data_file = tmp_path / "fixture_scores.json"
+    try_event = ScoreEvent(
+        side=ScoreSide.TEAM,
+        score_type=ScoreType.TRY,
+        minute=12,
+        scorer="Ben H",
+    )
+    penalty_event = ScoreEvent(
+        side=ScoreSide.OPPOSITION,
+        score_type=ScoreType.PENALTY,
+        minute=31,
+    )
+
+    save_fixture_score(1, try_event, data_file)
+    save_fixture_score(1, penalty_event, data_file)
+
+    scores = load_fixture_scores(data_file)
+    assert scores == {"1": [try_event, penalty_event]}
+    assert scores["1"][0].points == 5
+    assert scores["1"][1].points == 3

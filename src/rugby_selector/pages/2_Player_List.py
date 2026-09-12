@@ -88,4 +88,4 @@ else:
             selected_player_id = players[selected_index].id
             st.session_state["edit_player_id"] = selected_player_id
             st.query_params["player_id"] = str(selected_player_id)
-            st.switch_page("pages/1_Player.py")
+            st.switch_page("pages/1_Add_Player.py")
