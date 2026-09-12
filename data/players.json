@@ -1,0 +1,254 @@
+[
+    {
+        "id": 1,
+        "name": "James T",
+        "group": "back",
+        "skills": {
+            "attack": 2,
+            "defence": 2,
+            "handling": 2,
+            "breakdown": 1,
+            "vision": 2
+        }
+    },
+    {
+        "id": 2,
+        "name": "Ben H",
+        "group": "back",
+        "skills": {
+            "attack": 1,
+            "defence": 0,
+            "handling": 1,
+            "breakdown": 1,
+            "vision": 1
+        }
+    },
+    {
+        "id": 3,
+        "name": "Charlie A",
+        "group": "forward",
+        "skills": {
+            "attack": 2,
+            "defence": 2,
+            "handling": 1,
+            "breakdown": 1,
+            "vision": 1
+        }
+    },
+    {
+        "id": 4,
+        "name": "Dan S",
+        "group": "forward",
+        "skills": {
+            "attack": 1,
+            "defence": 1,
+            "handling": 0,
+            "breakdown": 1,
+            "vision": 1
+        }
+    },
+    {
+        "id": 5,
+        "name": "Donny G",
+        "group": "forward",
+        "skills": {
+            "attack": 2,
+            "defence": 2,
+            "handling": 1,
+            "breakdown": 2,
+            "vision": 1
+        }
+    },
+    {
+        "id": 6,
+        "name": "Felix G",
+        "group": "forward",
+        "skills": {
+            "attack": 1,
+            "defence": 2,
+            "handling": 1,
+            "breakdown": 2,
+            "vision": 1
+        }
+    },
+    {
+        "id": 7,
+        "name": "Gabe S",
+        "group": "forward",
+        "skills": {
+            "attack": 2,
+            "defence": 2,
+            "handling": 1,
+            "breakdown": 2,
+            "vision": 1
+        }
+    },
+    {
+        "id": 8,
+        "name": "Jack C",
+        "group": "forward",
+        "skills": {
+            "attack": 1,
+            "defence": 1,
+            "handling": 1,
+            "breakdown": 1,
+            "vision": 0
+        }
+    },
+    {
+        "id": 9,
+        "name": "Jacob C",
+        "group": "forward",
+        "skills": {
+            "attack": 2,
+            "defence": 2,
+            "handling": 1,
+            "breakdown": 2,
+            "vision": 1
+        }
+    },
+    {
+        "id": 10,
+        "name": "Josh G",
+        "group": "forward",
+        "skills": {
+            "attack": 2,
+            "defence": 2,
+            "handling": 1,
+            "breakdown": 2,
+            "vision": 1
+        }
+    },
+    {
+        "id": 11,
+        "name": "Josh S",
+        "group": "forward",
+        "skills": {
+            "attack": 2,
+            "defence": 2,
+            "handling": 1,
+            "breakdown": 2,
+            "vision": 1
+        }
+    },
+    {
+        "id": 12,
+        "name": "Max D",
+        "group": "forward",
+        "skills": {
+            "attack": 1,
+            "defence": 2,
+            "handling": 1,
+            "breakdown": 1,
+            "vision": 0
+        }
+    },
+    {
+        "id": 13,
+        "name": "Max S",
+        "group": "back",
+        "skills": {
+            "attack": 1,
+            "defence": 1,
+            "handling": 2,
+            "breakdown": 1,
+            "vision": 1
+        }
+    },
+    {
+        "id": 14,
+        "name": "Noah T",
+        "group": "back",
+        "skills": {
+            "attack": 1,
+            "defence": 1,
+            "handling": 1,
+            "breakdown": 1,
+            "vision": 1
+        }
+    },
+    {
+        "id": 15,
+        "name": "Noah W",
+        "group": "back",
+        "skills": {
+            "attack": 1,
+            "defence": 1,
+            "handling": 1,
+            "breakdown": 0,
+            "vision": 1
+        }
+    },
+    {
+        "id": 16,
+        "name": "Oliver B",
+        "group": "back",
+        "skills": {
+            "attack": 2,
+            "defence": 2,
+            "handling": 1,
+            "breakdown": 1,
+            "vision": 1
+        }
+    },
+    {
+        "id": 17,
+        "name": "Ray B",
+        "group": "forward",
+        "skills": {
+            "attack": 2,
+            "defence": 2,
+            "handling": 2,
+            "breakdown": 2,
+            "vision": 1
+        }
+    },
+    {
+        "id": 18,
+        "name": "Rhys S",
+        "group": "back",
+        "skills": {
+            "attack": 2,
+            "defence": 2,
+            "handling": 1,
+            "breakdown": 1,
+            "vision": 1
+        }
+    },
+    {
+        "id": 19,
+        "name": "Sam H",
+        "group": "back",
+        "skills": {
+            "attack": 2,
+            "defence": 1,
+            "handling": 2,
+            "breakdown": 1,
+            "vision": 2
+        }
+    },
+    {
+        "id": 20,
+        "name": "Sam T",
+        "group": "forward",
+        "skills": {
+            "attack": 1,
+            "defence": 2,
+            "handling": 2,
+            "breakdown": 1,
+            "vision": 1
+        }
+    },
+    {
+        "id": 21,
+        "name": "Seb S",
+        "group": "back",
+        "skills": {
+            "attack": 1,
+            "defence": 1,
+            "handling": 1,
+            "breakdown": 1,
+            "vision": 1
+        }
+    }
+]

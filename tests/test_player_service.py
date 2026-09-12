@@ -10,11 +10,11 @@ def player() ->Player:
         name = "Joe Bloggs",
         group = Position_Group.BACK,
         skills = Player_Skill(
-            attack = Skill_Rating.WEAK,
-            defence = Skill_Rating.AVERAGE,
-            handling = Skill_Rating.STRONG,
-            breakdown = Skill_Rating.WEAK,
-            vision = Skill_Rating.AVERAGE
+            attack = Skill_Rating.POOR,
+            defence = Skill_Rating.GOOD,
+            handling = Skill_Rating.EXCELLENT,
+            breakdown = Skill_Rating.POOR,
+            vision = Skill_Rating.GOOD
         )
     )
 
@@ -66,11 +66,11 @@ def test_update_player_preserves_id_and_replaces_details(player, tmp_path):
         name="Jane Doe",
         group=Position_Group.FORWARD,
         skills=Player_Skill(
-            attack=Skill_Rating.STRONG,
-            defence=Skill_Rating.STRONG,
-            handling=Skill_Rating.AVERAGE,
-            breakdown=Skill_Rating.STRONG,
-            vision=Skill_Rating.AVERAGE,
+            attack=Skill_Rating.EXCELLENT,
+            defence=Skill_Rating.EXCELLENT,
+            handling=Skill_Rating.GOOD,
+            breakdown=Skill_Rating.EXCELLENT,
+            vision=Skill_Rating.GOOD,
         ),
     )
     update_player(edited_player, data_file)

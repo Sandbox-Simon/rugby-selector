@@ -20,8 +20,8 @@ def player() ->Player:
 def test_create_player(player):
     assert player.name == "Joe Bloggs"
     assert player.group == Position_Group.BACK
-    assert player.skills.attack == Skill_Rating.WEAK
-    assert player.skills.defence == Skill_Rating.AVERAGE
-    assert player.skills.handling == Skill_Rating.STRONG
-    assert player.skills.breakdown == Skill_Rating.WEAK
-    assert player.skills.vision == Skill_Rating.AVERAGE
+    assert player.skills.attack == Skill_Rating.POOR
+    assert player.skills.defence == Skill_Rating.GOOD
+    assert player.skills.handling == Skill_Rating.EXCELLENT
+    assert player.skills.breakdown == Skill_Rating.POOR
+    assert player.skills.vision == Skill_Rating.GOOD

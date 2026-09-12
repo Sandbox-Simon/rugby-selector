@@ -9,9 +9,9 @@ from rugby_selector.services.player_service import add_player, load_players, upd
 
 DATA_FILE = Path(__file__).resolve().parents[3] / "data" / "players.json"
 RATING_LABELS = {
-    Skill_Rating.WEAK: "Weak",
-    Skill_Rating.AVERAGE: "Average",
-    Skill_Rating.STRONG: "Strong",
+    Skill_Rating.POOR: "Poor",
+    Skill_Rating.GOOD: "Good",
+    Skill_Rating.EXCELLENT: "Excellent",
 }
 SKILLS = ("attack", "defence", "handling", "breakdown", "vision")
 
@@ -83,7 +83,7 @@ if not is_editing or selected_player is not None:
                 skill_values[skill] = st.select_slider(
                     skill.title(),
                     options=list(Skill_Rating),
-                    value=(getattr(selected_player.skills, skill) if selected_player else Skill_Rating.AVERAGE),
+                    value=(getattr(selected_player.skills, skill) if selected_player else Skill_Rating.GOOD),
                     format_func=lambda rating: RATING_LABELS[rating],
                     key=f"{widget_suffix}_{skill}",
                 )

@@ -475,7 +475,7 @@ else:
             st.subheader("Quarter skill totals")
             st.caption(
                 "Totals for named playing positions only. "
-                "Ratings: Weak = 0, Average = 1, Strong = 2."
+                "Ratings: Poor = 0, Good = 1, Excellent = 2."
             )
             skill_total_rows = []
             for skill in SKILLS:

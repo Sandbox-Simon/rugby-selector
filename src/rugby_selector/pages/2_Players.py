@@ -10,15 +10,15 @@ from rugby_selector.services.player_service import load_players
 
 DATA_FILE = Path(__file__).resolve().parents[3] / "data" / "players.json"
 RATING_LABELS = {
-    Skill_Rating.WEAK: "Weak",
-    Skill_Rating.AVERAGE: "Average",
-    Skill_Rating.STRONG: "Strong",
+    Skill_Rating.POOR: "Poor",
+    Skill_Rating.GOOD: "Good",
+    Skill_Rating.EXCELLENT: "Excellent",
 }
 SKILL_COLUMNS = ["Attack", "Defence", "Handling", "Breakdown", "Vision", "Overall"]
 RATING_COLOURS = {
-    "Weak": "#fecaca",
-    "Average": "#fde68a",
-    "Strong": "#bbf7d0",
+    "Poor": "#fecaca",
+    "Good": "#fde68a",
+    "Excellent": "#bbf7d0",
 }
 
 

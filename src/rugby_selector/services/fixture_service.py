@@ -29,6 +29,27 @@ def add_fixture(fixture: Fixture, data_file: Path) -> None:
         )
 
 
+def update_fixture(fixture: Fixture, data_file: Path) -> None:
+    """Replace an existing fixture while keeping its ID."""
+    if fixture.id is None:
+        raise ValueError("A fixture ID is required to update a fixture.")
+
+    fixture_list = load_fixtures(data_file)
+    for index, saved_fixture in enumerate(fixture_list):
+        if saved_fixture.id == fixture.id:
+            fixture_list[index] = fixture
+            break
+    else:
+        raise ValueError(f"Fixture with ID {fixture.id} was not found.")
+
+    with data_file.open("w", encoding="utf-8") as file:
+        json.dump(
+            [saved_fixture.model_dump(mode="json") for saved_fixture in fixture_list],
+            file,
+            indent=4,
+        )
+
+
 def load_fixture_availability(data_file: Path) -> dict[str, list[int]]:
     """Load player availability keyed by fixture ID."""
     if not data_file.exists():

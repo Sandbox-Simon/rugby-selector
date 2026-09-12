@@ -3,9 +3,9 @@ from enum import IntEnum, Enum
 from pydantic import BaseModel
 
 class Skill_Rating(IntEnum):
-    WEAK = 0
-    AVERAGE = 1
-    STRONG = 2
+    POOR = 0
+    GOOD = 1
+    EXCELLENT = 2
 
 class Position_Group(Enum):
     FORWARD = "forward"
@@ -23,5 +23,3 @@ class Player(BaseModel):
     name: str
     group: Position_Group
     skills: Player_Skill
-
-
