@@ -15,6 +15,13 @@ RATING_LABELS = {
     Skill_Rating.EXCELLENT: "Excellent",
 }
 SKILL_COLUMNS = ["Attack", "Defence", "Handling", "Breakdown", "Vision", "Overall"]
+SKILL_ATTRIBUTES = {
+    "Attack": "attack",
+    "Defence": "defence",
+    "Handling": "handling",
+    "Breakdown": "breakdown",
+    "Vision": "vision",
+}
 RATING_COLOURS = {
     "Poor": "#fecaca",
     "Good": "#fde68a",
@@ -45,6 +52,34 @@ except (OSError, ValidationError, ValueError):
 if not players:
     st.info("No players have been added to the squad yet.")
 else:
+    skill_averages = {
+        skill: sum(getattr(player.skills, attribute) for player in players) / len(players)
+        for skill, attribute in SKILL_ATTRIBUTES.items()
+    }
+    overall_averages = [
+        sum(getattr(player.skills, attribute) for attribute in SKILL_ATTRIBUTES.values())
+        / len(SKILL_ATTRIBUTES)
+        for player in players
+    ]
+    average_overall = sum(overall_averages) / len(overall_averages)
+
+    st.subheader("Team overview")
+    overview_columns = st.columns(4)
+    with overview_columns[0]:
+        st.metric("Squad size", len(players))
+    with overview_columns[1]:
+        st.metric("Forwards", sum(player.group.value == "forward" for player in players))
+    with overview_columns[2]:
+        st.metric("Backs", sum(player.group.value == "back" for player in players))
+    with overview_columns[3]:
+        st.metric("Average overall", f"{average_overall:.1f} / 2")
+
+    st.caption("Average skill rating · Poor = 0, Good = 1, Excellent = 2")
+    skill_columns = st.columns(len(SKILL_ATTRIBUTES))
+    for column, (skill, average) in zip(skill_columns, skill_averages.items()):
+        with column:
+            st.metric(skill, f"{average:.1f} / 2")
+
     player_rows = [
         {
             "Name": player.name,
