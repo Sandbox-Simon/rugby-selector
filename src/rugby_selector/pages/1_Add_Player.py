@@ -75,7 +75,7 @@ if not is_editing or selected_player is not None:
             key=f"{widget_suffix}_player_group",
         )
 
-        st.subheader("Skills")
+        st.subheader("Technique skills")
         columns = st.columns(2)
         skill_values = {}
         for index, skill in enumerate(SKILLS):
@@ -86,6 +86,23 @@ if not is_editing or selected_player is not None:
                     value=(getattr(selected_player.skills, skill) if selected_player else Skill_Rating.GOOD),
                     format_func=lambda rating: RATING_LABELS[rating],
                     key=f"{widget_suffix}_{skill}",
+                )
+
+        st.subheader("Match rating")
+        columns = st.columns(2)
+        match_rating_values = {}
+        for index, skill in enumerate(SKILLS):
+            with columns[index % 2]:
+                match_rating_values[skill] = st.select_slider(
+                    skill.title(),
+                    options=list(Skill_Rating),
+                    value=(
+                        getattr(selected_player.match_rating, skill)
+                        if selected_player
+                        else Skill_Rating.GOOD
+                    ),
+                    format_func=lambda rating: RATING_LABELS[rating],
+                    key=f"{widget_suffix}_match_rating_{skill}",
                 )
 
         submitted = st.form_submit_button(
@@ -101,6 +118,7 @@ if not is_editing or selected_player is not None:
                 name=name.strip(),
                 group=group,
                 skills=Player_Skill(**skill_values),
+                match_rating=Player_Skill(**match_rating_values),
             )
             DATA_FILE.parent.mkdir(parents=True, exist_ok=True)
             if not DATA_FILE.exists():

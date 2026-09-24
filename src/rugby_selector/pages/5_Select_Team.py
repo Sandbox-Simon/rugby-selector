@@ -128,7 +128,7 @@ def render_skill_totals(
             "Skill": skill.title(),
             **{
                 quarter: sum(
-                    getattr(players_by_id[player_id].skills, skill)
+                    getattr(players_by_id[player_id].match_rating, skill)
                     for player_id in planned_positions[quarter][:PLAYING_POSITION_COUNT]
                     if player_id is not None
                 )
@@ -844,7 +844,7 @@ else:
                         "Skill": skill.title(),
                         **{
                             quarter: sum(
-                                getattr(players_by_id[player_id].skills, skill)
+                                getattr(players_by_id[player_id].match_rating, skill)
                                 for player_id in quarter_positions[quarter][:PLAYING_POSITION_COUNT]
                                 if player_id is not None
                             )

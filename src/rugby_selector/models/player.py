@@ -1,6 +1,6 @@
 from enum import IntEnum, Enum
 
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 
 class Skill_Rating(IntEnum):
     POOR = 0
@@ -23,3 +23,12 @@ class Player(BaseModel):
     name: str
     group: Position_Group
     skills: Player_Skill
+    match_rating: Player_Skill
+
+    @model_validator(mode="before")
+    @classmethod
+    def default_match_rating(cls, values):
+        if isinstance(values, dict) and "match_rating" not in values:
+            values = values.copy()
+            values["match_rating"] = values["skills"]
+        return values

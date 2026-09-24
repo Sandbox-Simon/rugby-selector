@@ -7,6 +7,13 @@
             "attack": 2,
             "defence": 2,
             "handling": 2,
+            "breakdown": 2,
+            "vision": 2
+        },
+        "match_rating": {
+            "attack": 2,
+            "defence": 2,
+            "handling": 2,
             "breakdown": 1,
             "vision": 2
         }
@@ -20,6 +27,13 @@
             "defence": 0,
             "handling": 1,
             "breakdown": 1,
+            "vision": 0
+        },
+        "match_rating": {
+            "attack": 1,
+            "defence": 0,
+            "handling": 1,
+            "breakdown": 1,
             "vision": 1
         }
     },
@@ -28,6 +42,13 @@
         "name": "Charlie A",
         "group": "forward",
         "skills": {
+            "attack": 2,
+            "defence": 1,
+            "handling": 1,
+            "breakdown": 1,
+            "vision": 1
+        },
+        "match_rating": {
             "attack": 2,
             "defence": 2,
             "handling": 1,
@@ -40,6 +61,13 @@
         "name": "Dan S",
         "group": "forward",
         "skills": {
+            "attack": 1,
+            "defence": 1,
+            "handling": 0,
+            "breakdown": 1,
+            "vision": 0
+        },
+        "match_rating": {
             "attack": 1,
             "defence": 1,
             "handling": 0,
@@ -57,6 +85,13 @@
             "handling": 1,
             "breakdown": 2,
             "vision": 1
+        },
+        "match_rating": {
+            "attack": 2,
+            "defence": 2,
+            "handling": 1,
+            "breakdown": 2,
+            "vision": 1
         }
     },
     {
@@ -64,6 +99,13 @@
         "name": "Felix G",
         "group": "forward",
         "skills": {
+            "attack": 2,
+            "defence": 1,
+            "handling": 1,
+            "breakdown": 2,
+            "vision": 1
+        },
+        "match_rating": {
             "attack": 1,
             "defence": 2,
             "handling": 1,
@@ -81,6 +123,13 @@
             "handling": 1,
             "breakdown": 2,
             "vision": 1
+        },
+        "match_rating": {
+            "attack": 2,
+            "defence": 2,
+            "handling": 1,
+            "breakdown": 2,
+            "vision": 1
         }
     },
     {
@@ -93,6 +142,13 @@
             "handling": 1,
             "breakdown": 1,
             "vision": 0
+        },
+        "match_rating": {
+            "attack": 1,
+            "defence": 1,
+            "handling": 1,
+            "breakdown": 1,
+            "vision": 0
         }
     },
     {
@@ -100,6 +156,13 @@
         "name": "Jacob C",
         "group": "forward",
         "skills": {
+            "attack": 1,
+            "defence": 2,
+            "handling": 1,
+            "breakdown": 1,
+            "vision": 1
+        },
+        "match_rating": {
             "attack": 2,
             "defence": 2,
             "handling": 1,
@@ -112,6 +175,13 @@
         "name": "Josh G",
         "group": "forward",
         "skills": {
+            "attack": 1,
+            "defence": 2,
+            "handling": 1,
+            "breakdown": 2,
+            "vision": 1
+        },
+        "match_rating": {
             "attack": 2,
             "defence": 2,
             "handling": 1,
@@ -124,6 +194,13 @@
         "name": "Josh S",
         "group": "forward",
         "skills": {
+            "attack": 2,
+            "defence": 2,
+            "handling": 2,
+            "breakdown": 2,
+            "vision": 2
+        },
+        "match_rating": {
             "attack": 2,
             "defence": 2,
             "handling": 1,
@@ -141,6 +218,13 @@
             "handling": 1,
             "breakdown": 1,
             "vision": 0
+        },
+        "match_rating": {
+            "attack": 1,
+            "defence": 2,
+            "handling": 1,
+            "breakdown": 1,
+            "vision": 0
         }
     },
     {
@@ -148,6 +232,13 @@
         "name": "Max S",
         "group": "back",
         "skills": {
+            "attack": 1,
+            "defence": 1,
+            "handling": 2,
+            "breakdown": 1,
+            "vision": 1
+        },
+        "match_rating": {
             "attack": 1,
             "defence": 1,
             "handling": 2,
@@ -165,6 +256,13 @@
             "handling": 1,
             "breakdown": 1,
             "vision": 1
+        },
+        "match_rating": {
+            "attack": 1,
+            "defence": 1,
+            "handling": 1,
+            "breakdown": 1,
+            "vision": 1
         }
     },
     {
@@ -172,6 +270,13 @@
         "name": "Noah W",
         "group": "back",
         "skills": {
+            "attack": 1,
+            "defence": 0,
+            "handling": 1,
+            "breakdown": 0,
+            "vision": 1
+        },
+        "match_rating": {
             "attack": 1,
             "defence": 1,
             "handling": 1,
@@ -184,6 +289,13 @@
         "name": "Oliver B",
         "group": "back",
         "skills": {
+            "attack": 1,
+            "defence": 1,
+            "handling": 1,
+            "breakdown": 1,
+            "vision": 1
+        },
+        "match_rating": {
             "attack": 2,
             "defence": 2,
             "handling": 1,
@@ -201,6 +313,13 @@
             "handling": 2,
             "breakdown": 2,
             "vision": 1
+        },
+        "match_rating": {
+            "attack": 2,
+            "defence": 2,
+            "handling": 2,
+            "breakdown": 2,
+            "vision": 1
         }
     },
     {
@@ -208,6 +327,13 @@
         "name": "Rhys S",
         "group": "back",
         "skills": {
+            "attack": 2,
+            "defence": 1,
+            "handling": 1,
+            "breakdown": 1,
+            "vision": 1
+        },
+        "match_rating": {
             "attack": 2,
             "defence": 2,
             "handling": 1,
@@ -220,6 +346,13 @@
         "name": "Sam H",
         "group": "back",
         "skills": {
+            "attack": 1,
+            "defence": 1,
+            "handling": 2,
+            "breakdown": 1,
+            "vision": 2
+        },
+        "match_rating": {
             "attack": 2,
             "defence": 1,
             "handling": 2,
@@ -236,6 +369,13 @@
             "defence": 2,
             "handling": 2,
             "breakdown": 1,
+            "vision": 2
+        },
+        "match_rating": {
+            "attack": 1,
+            "defence": 2,
+            "handling": 2,
+            "breakdown": 1,
             "vision": 1
         }
     },
@@ -244,6 +384,13 @@
         "name": "Seb S",
         "group": "back",
         "skills": {
+            "attack": 1,
+            "defence": 1,
+            "handling": 1,
+            "breakdown": 1,
+            "vision": 1
+        },
+        "match_rating": {
             "attack": 1,
             "defence": 1,
             "handling": 1,
